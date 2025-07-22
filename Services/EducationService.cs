@@ -13,7 +13,7 @@ namespace Resume_Manager.Services
         {
             _context = context;
         }
-        public async Task<IResult> AddEducation(EducationDTO newEducation)
+        public async Task<IResult> AddEducation(CreateEducationDTO newEducation)
         {
             var validationResults = new List<ValidationResult>();
             var validationContext = new ValidationContext(newEducation);
@@ -29,13 +29,12 @@ namespace Resume_Manager.Services
                 SchoolName = newEducation.SchoolName,
                 Degree = newEducation.Degree,
                 StartDate = newEducation.StartDate,
-                EndDate = newEducation.EndDate
+                EndDate = newEducation.EndDate,
+                UserId_FK = newEducation.UserID_FK 
             };
 
             await _context.Educations.AddAsync(education);
             await _context.SaveChangesAsync();
-
-            newEducation.EducationId = education.EducationId;
 
             return Results.Ok(newEducation);
         }
@@ -55,7 +54,7 @@ namespace Resume_Manager.Services
 
             if (education == null)
             {
-                return null;
+                return Results.NotFound($"Education with id {updateEducationId} not found.");
             }
 
             if (!string.IsNullOrEmpty(updatedEducation.SchoolName)) { education.SchoolName = updatedEducation.SchoolName; }
@@ -67,31 +66,31 @@ namespace Resume_Manager.Services
 
             return Results.Ok(updatedEducation);
         }
-        public async Task<EducationDTO?> DeleteEducation(int educationId)
+        public async Task<IResult?> DeleteEducation(int educationId)
         {
             if (educationId <= 0)
             {
-                return null;
+                return Results.BadRequest("Invalid education ID");
             }
 
             var education = await _context.Educations.FirstOrDefaultAsync(e => e.EducationId == educationId);
 
             if (education == null)
             {
-                return null;
+                return Results.NotFound($"Education with id {educationId} not found.");
             }
 
             _context.Educations.Remove(education);
             await _context.SaveChangesAsync();
 
-            return new EducationDTO
+            return Results.Ok( new EducationDTO
             {
                 EducationId = education.EducationId,
                 SchoolName = education.SchoolName,
                 Degree = education.Degree,
                 StartDate = education.StartDate,
                 EndDate = education.EndDate
-            };
+            });
         }
     }
 }

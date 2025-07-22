@@ -7,8 +7,8 @@ namespace Resume_Manager.Endpoints
     {
         public static void RegisterEndpoints(WebApplication app)
         {
-            app.MapPost("/educations", async (EducationService educationService, EducationDTO education ) => { 
-                
+            app.MapPost("/educations", async (EducationService educationService, CreateEducationDTO education) => {
+
                 if (education == null)
                 {
                     return Results.BadRequest("EducationDTO is required.");
@@ -33,4 +33,4 @@ namespace Resume_Manager.Endpoints
             });
         }
     }
-}
+}   

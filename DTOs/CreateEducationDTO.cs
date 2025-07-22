@@ -2,9 +2,8 @@
 
 namespace Resume_Manager.DTOs
 {
-    public class EducationDTO
+    public class CreateEducationDTO
     {
-        public int? EducationId { get; set; }
         [Required(ErrorMessage = "School name is required")]
         public string SchoolName { get; set; }
 

@@ -8,9 +8,14 @@ namespace Resume_Manager.Services
 {
     public class UserService
     {
-        public async Task<List<UserDTO>> FetchAllUsers(ManagerDbContext context)
+        private readonly ManagerDbContext _context;
+        public UserService(ManagerDbContext context)
         {
-            var users = await context.Users.Select(u => new UserDTO
+            _context = context;
+        }
+        public async Task<IResult> FetchAllUsers()
+        {
+            var users = await _context.Users.Select(u => new UserDTO
             {
                 FullName = u.FullName,
                 Description = u.Description,
@@ -33,12 +38,16 @@ namespace Resume_Manager.Services
                 }).ToList()
             }).ToListAsync();
 
-            return users;
+            if (!users.Any()) { return Results.NotFound("No users found"); }
+
+            return Results.Ok(users);
         }
 
-        public async Task<UserDTO> FetchUserByID(ManagerDbContext context, int userId)
+        public async Task<IResult> FetchUserByID(int userId)
         {
-            var user = await context.Users.Where(u => u.UserId == userId).Select(u => new UserDTO
+            if (userId <= 0) { return Results.BadRequest("userId must be greater than zero"); }
+
+            var user = await _context.Users.Where(u => u.UserId == userId).Select(u => new UserDTO
             {
                 FullName = u.FullName,
                 Description = u.Description,
@@ -60,8 +69,10 @@ namespace Resume_Manager.Services
                     EndDate = w.EndDate
                 }).ToList()
             }).FirstOrDefaultAsync();
-            
-            return user;
+
+            if (user == null) { return Results.NotFound($"User with id {userId} not found."); }
+
+            return Results.Ok(user);
         }
     }
 }

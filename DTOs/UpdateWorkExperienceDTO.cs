@@ -9,5 +9,7 @@ namespace Resume_Manager.DTOs
         public string? Description { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+        public int? UserID_FK { get; set; }
+
     }
 }

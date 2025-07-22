@@ -11,5 +11,6 @@ namespace Resume_Manager.DTOs
         public DateTime? StartDate { get; set; }
 
         public DateTime? EndDate { get; set; }
+        public int? UserID_FK { get; set; }
     }
 }

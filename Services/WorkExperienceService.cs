@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Resume_Manager.Data;
 using Resume_Manager.DTOs;
 using Resume_Manager.Models;
@@ -14,7 +13,7 @@ namespace Resume_Manager.Services
         {
             _context = context;
         }
-        public async Task<WorkExperienceDTO?> AddWorkExperience(WorkExperienceDTO newWorkExperience)
+        public async Task<IResult?> AddWorkExperience(CreateWorkExperienceDTO newWorkExperience)
         {
             var validationResults = new List<ValidationResult>();
             var validationContext = new ValidationContext(newWorkExperience);
@@ -22,7 +21,7 @@ namespace Resume_Manager.Services
 
             if (!isValid)
             {
-                return null;
+                return Results.BadRequest(validationResults);
             }
 
             var workExperience = new WorkExperience
@@ -31,18 +30,17 @@ namespace Resume_Manager.Services
                 CompanyName = newWorkExperience.CompanyName,
                 Description = newWorkExperience.Description,
                 StartDate = newWorkExperience.StartDate,
-                EndDate = newWorkExperience.EndDate
+                EndDate = newWorkExperience.EndDate,
+                UserId_FK = newWorkExperience.UserID_FK
             };
 
             await _context.WorkExperiences.AddAsync(workExperience);
             await _context.SaveChangesAsync();
 
-            newWorkExperience.WorkExperienceId = workExperience.WorkExperienceId;
-
-            return newWorkExperience;
+           return Results.Ok(newWorkExperience);
         }
 
-        public async Task<UpdateWorkExperienceDTO?> UpdateWorkExperience(UpdateWorkExperienceDTO updatedWorkExperience, int updateWEId)
+        public async Task<IResult?> UpdateWorkExperience(UpdateWorkExperienceDTO updatedWorkExperience, int updateWEId)
         {
             var validationResults = new List<ValidationResult>();
             var validationContext = new ValidationContext(updatedWorkExperience);
@@ -50,14 +48,14 @@ namespace Resume_Manager.Services
 
             if (!isValid)
             {
-                return null;
+                return Results.BadRequest(validationResults);
             }
 
             var workExperience = await _context.WorkExperiences.FirstOrDefaultAsync(we => we.WorkExperienceId == updateWEId);
 
             if (workExperience == null)
             {
-                return null;
+                return Results.NotFound($"WorkExperience with id {updateWEId} not found.");
             }
 
             if (!string.IsNullOrEmpty(updatedWorkExperience.JobTitle)) { workExperience.JobTitle = updatedWorkExperience.JobTitle; }
@@ -68,10 +66,34 @@ namespace Resume_Manager.Services
 
             await _context.SaveChangesAsync();
 
-            return updatedWorkExperience;
+            return Results.Ok(updatedWorkExperience);
         }
-        public Task<WorkExperienceDTO?> DeleteWorkExperience()
+        public async Task<IResult?> DeleteWorkExperience(int workExperienceId)
         {
+            if (workExperienceId <= 0)
+            {
+                return Results.BadRequest("Invalid WorkExperienceID");
+            }
+
+            var workExperience = await _context.WorkExperiences.FirstOrDefaultAsync(we => we.WorkExperienceId == workExperienceId);
+
+            if (workExperience == null)
+            {
+                return Results.NotFound($"Work experience with id {workExperienceId} not found.");
+            }
+
+            _context.WorkExperiences.Remove(workExperience);
+            await _context.SaveChangesAsync();
+
+            return Results.Ok(new WorkExperienceDTO
+            {
+                WorkExperienceId = workExperience.WorkExperienceId,
+                JobTitle = workExperience.JobTitle,
+                CompanyName = workExperience.CompanyName,
+                Description = workExperience.Description,
+                StartDate = workExperience.StartDate,
+                EndDate = workExperience.EndDate
+            });
         }
     }
 }

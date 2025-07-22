@@ -14,5 +14,9 @@ namespace Resume_Manager.DTOs
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
 
+        [Required(ErrorMessage = "Corresponding user is required")]
+
+        public int UserID_FK { get; set; }
+
     }
 }

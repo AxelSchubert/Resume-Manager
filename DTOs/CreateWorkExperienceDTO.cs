@@ -2,18 +2,15 @@
 
 namespace Resume_Manager.DTOs
 {
-    public class EducationDTO
+    public class CreateWorkExperienceDTO
     {
-        public int? EducationId { get; set; }
-        [Required(ErrorMessage = "School name is required")]
-        public string SchoolName { get; set; }
-
-        [Required(ErrorMessage = "Degree is required")]
-        public string Degree { get; set; }
-
+        [Required(ErrorMessage = "Job title is required")]
+        public string JobTitle { get; set; }
+        [Required(ErrorMessage = "Company name is required")]
+        public string CompanyName { get; set; }
+        public string Description { get; set; }
         [Required(ErrorMessage = "Start date is required")]
         public DateTime StartDate { get; set; }
-
         public DateTime? EndDate { get; set; }
 
         [Required(ErrorMessage = "Corresponding user is required")]
