@@ -1,1 +1,1 @@
-![Er-diagram](images/logo.png)
+![Er-diagram](images/erdplus.png)
